@@ -5,5 +5,5 @@ The purpose of this project is to learn to use the Arduino IDE to write code for
 #### Sensors Used
 
   * DHT11 Temperature Sensor
-  * Photoresistor Light Sensor
   * Barometric Pressure Sensor
+  * Photosensitive Sensor Module
