@@ -10,7 +10,7 @@
 weatherSensors::weatherSensors(int tempSensorPin, char* tempSensorType):
   dhtSensor_(tempSensorPin, tempSensorType)
   {
-    // empty
+    dhtSensor_.begin();
   }
 
 String weatherSensors::readTemperature(){
