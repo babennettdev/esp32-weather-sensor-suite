@@ -7,7 +7,7 @@
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "DHT.h"
+#include "weatherSensors.h"
 
 // Definitions
 #define DHT_OUT_PIN 13
@@ -21,37 +21,59 @@
 const char* ssid = "YOUR_SSID_HERE";
 const char* password = "YOUR_PASSWORD_HERE";
 
-DHT dhtSensor(DHT_OUT_PIN, DHT_SENSOR_TYPE);
 
+weatherSensors sensors(DHT_OUT_PIN, DHT_SENSOR_TYPE);
+AsyncWebServer server(80);  //Port 80
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("Test DHT11 sensor");
-
-  dhtSensor.begin();
-
+String processor(const String& var){
+  Serial.println(var);
+  if(var == "TEMPERATURE"){
+    return sensors.readDHTTemperature();
+  }
+  else if(var == "HUMIDITY"){
+    return sensors.readDHTHumidity();
+  }
+  else if(var == "HEAT_INDEX"){
+    return sensors.readDHTHeatIndex();
+  }
+  return String();
 }
 
-void loop() {
-  delay(2000);
+void setup() {
+  
+  Serial.begin(115200); // Begin serial communication for debug
 
-  float humidity = dhtSensor.readHumidity();
-  float temperature = dhtSensor.readTemperature();
-
-  if (isnan(humidity) || isnan(temperature)) {
-    Serial.println(F("DHT sensor failure."));
+  // Initialize SPIFFS filesystem
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
 
-  // Compute heat index in Celsius (isFahreheit = false)
-  float heat_index_celcius = dhtSensor.computeHeatIndex(temperature, humidity, false);
+  // Wi-Fi connection
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Wi-Fi connected!");
+  
+  // Print ESP32 Local IP Address
+  Serial.println(WiFi.localIP());
 
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.print("%  Temperature: ");
-  Serial.print(temperature);
-  Serial.print("°C ");
-  Serial.print("Heat index: ");
-  Serial.print(heat_index_celcius);
-  Serial.println("°C ");
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/style.css", "text/css");
+  });
+  
+  server.begin();
+  Serial.println("Server started!");
+ }
+
+void loop() {
+  
+  
 }
