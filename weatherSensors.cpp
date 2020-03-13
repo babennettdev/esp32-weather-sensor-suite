@@ -5,15 +5,20 @@
  *  This class holds the sensor objects and the methods to read from them.
  */
 
+#include "weatherSensors.h"
 
-
-weatherSensors::weatherSensors(int tempSensorPin, char* tempSensorType):
+weatherSensors::weatherSensors(uint8_t tempSensorPin, uint8_t tempSensorType):
   dhtSensor_(tempSensorPin, tempSensorType)
   {
     dhtSensor_.begin();
   }
 
-String weatherSensors::readTemperature(){
+  weatherSensors::~weatherSensors()
+  {
+    // Empty
+  }
+
+String weatherSensors::readDHTTemperature(){
   float temperature = this->dhtSensor_.readTemperature();
 
   if (isnan(temperature)){
@@ -32,7 +37,7 @@ String weatherSensors::readTemperature(){
   return String(temperature);
 }
 
-String weatherSensors::readHumidity(){
+String weatherSensors::readDHTHumidity(){
   float humidity = this->dhtSensor_.readHumidity();
   
   if (isnan(humidity)){
@@ -51,7 +56,7 @@ String weatherSensors::readHumidity(){
   return String(humidity);
 }
 
-String weatherSensors::readHeatIndex(){
+String weatherSensors::readDHTHeatIndex(){
   float humidity = this->dhtSensor_.readHumidity();
   float temperature = this->dhtSensor_.readTemperature();
 

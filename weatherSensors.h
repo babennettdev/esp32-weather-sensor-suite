@@ -8,6 +8,7 @@
 #ifndef WEATHERSENSORS_H
 #define WEATHERSENSORS_H
 
+#include <Arduino.h>
 #include "DHT.h"
 #define DEBUG 1
 
@@ -15,12 +16,12 @@ class weatherSensors
 {
 public:
 
-	weatherSensors(int tempSensorPin, char* tempSensorType);
+	weatherSensors(uint8_t tempSensorPin, uint8_t tempSensorType);
 	~weatherSensors();
 
-	String readTemperature();
-	String readHumidity();
-	String readHeatIndex();
+	String readDHTTemperature();
+	String readDHTHumidity();
+	String readDHTHeatIndex();
 
     DHT dhtSensor_;
 
